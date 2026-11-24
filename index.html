@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>마법의 e와 긴 i 소리 – bike 파닉스</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8f5ff;--card:#fff;--ink:#17315c;--sub:#5a7194;--magic:#ff5d6c;--sun:#ffc93c;--ok:#2bb673;--line:#c9e3f7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1f3a;--card:#1a2f54;--ink:#f2f7ff;--sub:#a9bddd;--line:#2c4670}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:18px;line-height:1.5}
+main{max-width:720px;margin:0 auto;padding:16px 16px 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:26px;margin:8px 0}
+.stars{background:var(--card);border-radius:99px;padding:4px 14px;font-size:20px;white-space:nowrap}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 16px}
+nav button{font:inherit;font-size:15px;border:3px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:10px 2px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--sun);border-color:var(--sun);color:#17315c}
+button:focus-visible{outline:4px solid var(--magic);outline-offset:2px}
+.card{background:var(--card);border-radius:28px;padding:24px 16px;text-align:center}
+.hint{color:var(--sub);font-size:16px;margin:0 0 12px}
+.big{font-size:clamp(64px,22vw,120px);line-height:1.1;letter-spacing:2px;margin:8px 0}
+.big .i{color:var(--ink)}
+.long .i{color:var(--magic)}
+.e{display:inline-block;color:var(--magic);width:0;overflow:hidden;opacity:0;transform:translateY(-30px) scale(.4);transition:all .5s cubic-bezier(.3,1.6,.5,1);vertical-align:bottom}
+.long .e{width:.62em;opacity:1;transform:none}
+.badge{display:inline-block;border-radius:99px;padding:2px 16px;font-size:20px;background:var(--line)}
+.long .badge{background:var(--magic);color:#fff}
+.btn{font:inherit;font-size:20px;border:0;border-radius:99px;padding:12px 24px;margin:6px;cursor:pointer;background:var(--magic);color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.18)}
+.btn.alt{background:var(--sun);color:#17315c}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.rule{background:var(--bg);border-radius:20px;padding:12px;margin-top:16px;font-size:17px}
+.rule b{color:var(--magic)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.w{font:inherit;border:3px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:10px 4px;cursor:pointer}
+.w .em{font-size:40px;display:block}
+.w .t{font-size:24px}
+.w .t span{color:var(--magic)}
+.opts{display:grid;gap:10px;margin-top:16px}
+.opt{font:inherit;font-size:28px;border:3px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:14px;cursor:pointer}
+.opt.good{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.bad{background:var(--line);opacity:.6}
+.fb{min-height:34px;font-size:22px;margin-top:10px}
+.slots,.tiles{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px 0}
+.slot{width:56px;height:68px;border-bottom:5px solid var(--sun);font-size:44px;display:flex;align-items:center;justify-content:center}
+.tile{font:inherit;width:60px;height:60px;font-size:34px;border-radius:16px;border:0;background:var(--sun);color:#17315c;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.tile:disabled{opacity:.25}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pop{animation:pp .5s}
+@keyframes pp{50%{transform:scale(1.2)}}
+@media (prefers-reduced-motion:reduce){.e,.shake,.pop{transition:none;animation:none}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>🚲 긴 i 소리 놀이터</h1><div class="stars" id="stars" aria-live="polite">⭐ 0</div></header>
+<nav role="tablist" id="nav"></nav>
+<section id="view"></section>
+</main>
+<script>
+const PAIRS=[["bit","bite"],["kit","kite"],["hid","hide"],["rid","ride"],["pin","pine"],["win","wine"],["slid","slide"],["dim","dime"],["rip","ripe"],["fin","fine"]];
+const WORDS=[["bike","🚲"],["kite","🪁"],["five","5️⃣"],["nine","9️⃣"],["rice","🍚"],["mice","🐭"],["ice","🧊"],["dice","🎲"],["pine","🌲"],["vine","🌿"],["smile","😊"],["slide","🛝"],["lime","🍋"],["hike","🥾"],["dive","🤿"],["time","⏰"],["hide","🙈"],["line","📏"],["wipe","🧽"],["bite","😬"]];
+let stars=0,tab=0,voice=null;
+const $=s=>document.querySelector(s);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>[...a].sort(()=>Math.random()-.5);
+function say(t,rate){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=rate||.8;speechSynthesis.speak(u)}catch(e){}}
+function addStar(){stars++;const s=$("#stars");s.textContent="⭐ "+stars;s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop")}
+const hl=w=>w.replace(/^(.*?)(i)(.*?)(e)$/,'$1<span>i</span>$3<span>e</span>');
+const TABS=["✨ 배우기","👂 듣고 고르기","🔤 글자 만들기","🃏 단어 카드"];
+$("#nav").innerHTML=TABS.map((t,i)=>`<button role="tab" data-i="${i}">${t}</button>`).join("");
+$("#nav").onclick=e=>{const b=e.target.closest("button");if(b){tab=+b.dataset.i;render()}};
+
+function render(){
+  document.querySelectorAll("#nav button").forEach((b,i)=>b.setAttribute("aria-selected",i===tab));
+  [learn,listen,spell,cards][tab]();
+}
+
+/* 1. learn */
+function learn(){
+  let n=0,long=false;
+  const v=$("#view");
+  v.innerHTML=`<div class="card" id="c"><p class="hint">버튼을 눌러 마법의 e를 붙여 보세요!</p>
+  <div class="big"><span id="b"></span><span class="i">i</span><span id="a"></span><span class="e">e</span></div>
+  <div class="badge" id="bd"></div>
+  <div><button class="btn" id="mg"></button><button class="btn alt" id="sp">🔊 듣기</button></div>
+  <div><button class="btn alt" id="nx">다음 단어 ▶</button></div></div>
+  <div class="rule">💡 <b>마법의 e</b>는 단어 끝에서 소리를 내지 않아요. 대신 앞의 <b>i</b>가 자기 이름처럼 <b>“아이”</b> 하고 길게 소리 나요. 😊 bike → <b>b·i·k</b> + e = <b>바이크</b></div>`;
+  function draw(){
+    const [s,l]=PAIRS[n],core=l.slice(0,-1);
+    const m=core.match(/^(.*?)i(.*)$/);
+    $("#b").textContent=m[1];$("#a").textContent=m[2];
+    $("#c").classList.toggle("long",long);
+    $("#bd").textContent=long?`긴 i : ${l}`:`짧은 i : ${s}`;
+    $("#mg").textContent=long?"e 떼기 ↩":"마법의 e 붙이기 ✨";
+  }
+  $("#mg").onclick=()=>{long=!long;draw();say(long?PAIRS[n][1]:PAIRS[n][0])};
+  $("#sp").onclick=()=>say(long?PAIRS[n][1]:PAIRS[n][0]);
+  $("#nx").onclick=()=>{n=(n+1)%PAIRS.length;long=false;draw()};
+  draw();
+}
+
+/* 2. listen quiz */
+let lq={q:0,mode:0};
+function listen(){
+  const v=$("#view");
+  v.innerHTML=`<div class="card"><p class="hint">어떤 놀이를 할까요?</p>
+  <button class="btn" id="m0">🎧 단어 찾기</button><button class="btn alt" id="m1">🆚 짧게? 길게?</button></div>`;
+  $("#m0").onclick=()=>{lq={q:0,mode:0};nextQ()};
+  $("#m1").onclick=()=>{lq={q:0,mode:1};nextQ()};
+}
+function nextQ(){
+  if(lq.q>=8){$("#view").innerHTML=`<div class="card"><div class="big">🎉</div><p>모두 끝! 정말 잘했어요!</p><button class="btn" id="re">다시 하기</button></div>`;$("#re").onclick=listen;return}
+  lq.q++;
+  const v=$("#view");let ans,opts,label;
+  if(lq.mode===0){
+    const [w,e]=pick(WORDS);ans=w;
+    opts=shuf([w,...shuf(WORDS.map(x=>x[0]).filter(x=>x!==w)).slice(0,2)]);
+    v.innerHTML=`<div class="card"><p class="hint">${lq.q} / 8 · 들리는 단어를 찾아요</p><button class="btn" id="pl">🔊 다시 듣기</button><div class="opts" id="o"></div><div class="fb" id="fb"></div></div>`;
+    $("#o").innerHTML=opts.map(o=>`<button class="opt" data-a="${o}">${o}</button>`).join("");
+  }else{
+    const p=pick(PAIRS),isLong=Math.random()<.5;ans=isLong?p[1]:p[0];
+    v.innerHTML=`<div class="card"><p class="hint">${lq.q} / 8 · 소리를 듣고 골라요</p><button class="btn" id="pl">🔊 다시 듣기</button><div class="opts" id="o"><button class="opt" data-a="${p[0]}">짧은 i 😶 (${p[0]})</button><button class="opt" data-a="${p[1]}">긴 i 🚲 (${p[1]})</button></div><div class="fb" id="fb"></div></div>`;
+    if(Math.random()<.5)$("#o").append($("#o").firstChild);
+  }
+  $("#pl").onclick=()=>say(ans);
+  setTimeout(()=>say(ans),300);
+  let done=false;
+  $("#o").onclick=e=>{
+    const b=e.target.closest(".opt");if(!b||done)return;
+    if(b.dataset.a===ans){done=true;b.classList.add("good");$("#fb").textContent="🎉 정답! 맞아요!";addStar();say(ans);setTimeout(nextQ,1400)}
+    else{b.classList.add("bad","shake");$("#fb").textContent="😮 다시 들어 볼까요?";say(ans)}
+  };
+}
+
+/* 3. spelling */
+function spell(){
+  const [w,em]=pick(WORDS);let got=[];
+  const v=$("#view");
+  v.innerHTML=`<div class="card"><p class="hint">그림에 맞는 단어를 글자로 만들어요</p>
+  <div class="big" style="font-size:96px">${em}</div>
+  <button class="btn alt" id="pl">🔊 듣기</button>
+  <div class="slots" id="s"></div><div class="tiles" id="t"></div>
+  <div class="fb" id="fb"></div>
+  <button class="btn alt" id="rs">↩ 지우기</button><button class="btn alt" id="nx">다른 그림 ▶</button></div>`;
+  const letters=shuf(w.split("").map((c,i)=>({c,i})));
+  function draw(){
+    $("#s").innerHTML=w.split("").map((_,i)=>`<div class="slot">${got[i]?got[i].c:""}</div>`).join("");
+    $("#t").innerHTML=letters.map(l=>`<button class="tile" data-i="${l.i}" ${got.includes(l)?"disabled":""}>${l.c}</button>`).join("");
+  }
+  $("#t").onclick=e=>{
+    const b=e.target.closest(".tile");if(!b||b.disabled||got.length>=w.length)return;
+    got.push(letters.find(l=>l.i==b.dataset.i));draw();
+    if(got.length===w.length){
+      if(got.map(l=>l.c).join("")===w){$("#fb").innerHTML=`🎉 맞아요! <b>${w}</b>`;addStar();say(w)}
+      else{$("#s").classList.add("shake");$("#fb").textContent="🤔 마법의 e는 맨 끝에 와요!";setTimeout(()=>{got=[];$("#s").classList.remove("shake");$("#fb").textContent="";draw()},1200)}
+    }
+  };
+  $("#pl").onclick=()=>say(w);
+  $("#rs").onclick=()=>{got=[];$("#fb").textContent="";draw()};
+  $("#nx").onclick=spell;
+  draw();
+}
+
+/* 4. cards */
+function cards(){
+  $("#view").innerHTML=`<p class="hint">단어를 누르면 소리가 나요! 빨간 글자는 i와 마법의 e예요.</p><div class="grid">`+
+  WORDS.map(([w,e])=>`<button class="w" data-w="${w}"><span class="em">${e}</span><span class="t">${hl(w)}</span></button>`).join("")+`</div>`;
+  $("#view").onclick=e=>{const b=e.target.closest(".w");if(b)say(b.dataset.w)};
+}
+render();
+</script>
+</body>
+</html>
